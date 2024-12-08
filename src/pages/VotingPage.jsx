@@ -12,11 +12,16 @@ export default function VotingPage() {
   const token = localStorage.getItem("token");
   const Socket = useRef();
 
+  if (!token) {
+    navigate("/login"); 
+  }
+
   const { candidates, error, loading: loadingCandidates, details, constituency } = useFetchCandidates(token);
   const { castVote, errorMessage, loading: loadingVote } = useCastVote(token);
 
   useEffect(() => {
-    const wss = new WebSocket("ws://localhost:5001");
+    const SOCKET_URL = import.meta.env.VITE_SOCKET_URL; 
+    const wss = new WebSocket(SOCKET_URL);
     Socket.current = wss;
 
     wss.onopen = () => {
@@ -29,10 +34,14 @@ export default function VotingPage() {
       }
     };
 
+    wss.onerror = (error) => {
+      console.error("WebSocket Error: ", error);
+    };
+
     return () => {
       wss.close();
     };
-  }, []);
+  }, [navigate]);
 
   const handleVoteClick = (candidate) => {
     setSelectedCandidate(candidate);
@@ -45,6 +54,11 @@ export default function VotingPage() {
   };
 
   const handleConfirmVote = async () => {
+    if (!selectedCandidate) {
+      alert("No candidate selected. Please select a candidate before confirming.");
+      return;
+    }
+
     const status = await castVote(selectedCandidate.candidateID);
 
     if (status) {
@@ -59,35 +73,34 @@ export default function VotingPage() {
 
   return (
     <div className="p-6">
-        <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4">
         <div>
-            <h2 className="text-lg font-bold">Voter Details</h2>
-<p><strong>Voter Name:</strong> {details?.name || 'N/A'}</p>
-<p><strong>Voter ID:</strong> {details?.Id || 'N/A'}</p>
-<p><strong>Constituency:</strong> {constituency || 'N/A'}</p>
-          </div>
-          <div className="mt-5">
+          <h2 className="text-lg font-bold">Voter Details</h2>
+          <p><strong>Voter Name:</strong> {details?.name || 'N/A'}</p>
+          <p><strong>Voter ID:</strong> {details?.Id || 'N/A'}</p>
+          <p><strong>Constituency:</strong> {constituency || 'N/A'}</p>
+        </div>
+        <div className="mt-5">
           <Button variant="destructive" onClick={handleLogout}>
             Logout
           </Button>
-          </div>
         </div>
+      </div>
 
       {loadingCandidates ? (
         <div>Loading candidates...</div>
+      ) : candidates.length === 0 ? (
+        <div>No candidates available.</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {candidates.map((candidate, index) => (
-            <Card key={index} className="shadow-md">
+          {candidates.map((candidate) => (
+            <Card key={candidate.candidateID} className="shadow-md">
               <CardHeader>
                 <CardTitle>{candidate.name}</CardTitle>
                 <CardDescription>{candidate.party_name}</CardDescription>
               </CardHeader>
               <CardFooter className="flex justify-end">
-                <Button
-                  variant="primary"
-                  onClick={() => handleVoteClick(candidate)}
-                >
+                <Button variant="primary" onClick={() => handleVoteClick(candidate)}>
                   Vote
                 </Button>
               </CardFooter>
@@ -108,11 +121,7 @@ export default function VotingPage() {
               <Button variant="secondary" onClick={() => setShowWarning(false)}>
                 Cancel
               </Button>
-              <Button
-                variant="primary"
-                onClick={handleConfirmVote}
-                disabled={loadingVote}
-              >
+              <Button variant="primary" onClick={handleConfirmVote} disabled={loadingVote}>
                 {loadingVote ? "Casting Vote..." : "Confirm"}
               </Button>
             </div>

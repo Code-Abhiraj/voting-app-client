@@ -15,6 +15,10 @@ export default function IndexPage() {
   const { fetchOfficerData, isOfficerLoading, officerError } = useOfficersData();
   const { fetchVoterData, isVoterLoading, voterError } = useVotersData();
 
+  console.log("log",import.meta.env.VITE_SERVER_URI)
+  console.log("Environment Variables:", import.meta.env);
+
+
   const handleVoterIDSubmit = async (event) => {
     event.preventDefault();
     const value = await fetchVoterData(voterID);

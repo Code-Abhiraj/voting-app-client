@@ -25,12 +25,12 @@ const Results = () => {
 
   const fetchHelper = async () => {
     if (constituencyRef.current === "all") {
-      fetchData("http://localhost:8000/api/results/parties", {
+      fetchData(`${import.meta.env.VITE_SERVER_URI}/api/results/parties`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
     } else {
-      fetchData("http://localhost:8000/api/results/candidates", {
+      fetchData(`${import.meta.env.VITE_SERVER_URI}/api/results/candidates`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: constituencyRef.current }),
@@ -44,7 +44,8 @@ const Results = () => {
   }, [selectedConstituency]);
 
   useEffect(() => {
-    const wss = new WebSocket("ws://localhost:5001");
+    const wss = new WebSocket(import.meta.env.VITE_SOCKET_URL);
+    console.log("log",import.meta.env.VITE_SOCKET_URL)
 
     wss.onopen = () => {
       wss.send("Init");
