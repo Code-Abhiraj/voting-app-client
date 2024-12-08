@@ -29,7 +29,7 @@ export default function IndexPage() {
   };
   const handleOtpSubmit = async (event) => {
     event.preventDefault();
-    const response = await fetch("/api/voter/otp", {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URI}/api/voter/otp`, {
       method: "POST",
       body: JSON.stringify({ voterId: voterID, otp }),
       headers: { "Content-Type": "application/json" },

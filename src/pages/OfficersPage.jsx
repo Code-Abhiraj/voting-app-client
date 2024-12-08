@@ -39,11 +39,11 @@ const OfficersPage = () => {
 
   const fetchAllData = async () => {
     try {
-      const allVotersResponse = await fetchData('/api/officer/all');
-      const votedVotersResponse = await fetchData('/api/officer/voted');
-      const pendingVotersResponse = await fetchData('/api/officer/pending');
-      const candidatesResponse = await fetchData('/api/officer/candidates');
-      const officerResponse = await fetchData('/api/officer/details');
+      const allVotersResponse = await fetchData(`${import.meta.env.VITE_SERVER_URI}/api/officer/all`);
+      const votedVotersResponse = await fetchData(`${import.meta.env.VITE_SERVER_URI}/api/officer/voted`);
+      const pendingVotersResponse = await fetchData(`${import.meta.env.VITE_SERVER_URI}/api/officer/pending`);
+      const candidatesResponse = await fetchData(`${import.meta.env.VITE_SERVER_URI}/api/officer/candidates`);
+      const officerResponse = await fetchData(`${import.meta.env.VITE_SERVER_URI}/api/officer/details`);
 
       setData({
         totalVoters: allVotersResponse.voters,
